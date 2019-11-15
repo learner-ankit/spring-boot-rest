@@ -1,22 +1,18 @@
 package com.account.manage.server.main;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.account.manage.server.main.model.AccountHistoryEntity;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringBootRestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SpringBootRestApplicationTests {
+public class SpringBootRestApplicationTests {
 	
 	@Autowired
 	private TestRestTemplate restTemplate;
@@ -25,7 +21,7 @@ class SpringBootRestApplicationTests {
 	private int port;
 
 	@Test
-	void contextLoads() {
+	public void contextLoads() {
 	}
 	
 	private String getRootUrl() {
@@ -39,15 +35,21 @@ class SpringBootRestApplicationTests {
 
 		ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/accounts",
 				HttpMethod.GET, entity, String.class);
-
-		Assert.assertNotNull(response.getBody());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 	}
 
 	@Test
 	public void testgetAccountById() {
-		AccountHistoryEntity account = restTemplate.getForObject(getRootUrl() + "/accounts/585309209", AccountHistoryEntity.class);
-		System.out.println(account.getAccountNo());
-		Assert.assertNotNull(account);
+		ResponseEntity<String> response= restTemplate.getForEntity(getRootUrl() + "/accounts/585309209", String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+	}
+
+	@Test
+	public void testgetAccountById_BAD_REQUEST() {
+		ResponseEntity<String> response= restTemplate.getForEntity(getRootUrl() + "/accounts/5335309209", String.class);
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
 
 }
